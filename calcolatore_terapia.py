@@ -5,7 +5,7 @@ def classifica_ipertensione(ps, pd):
         return "VALORI NON INDICATIVI DI IPERTENSIONE"
     elif ps > 159 or pd > 109:
         return "IPERTENSIONE GRAVE"
-    elif 140 <= ps <= 159 and 90 <= pd <= 109:
+    elif 140 <= ps <= 159 and 80 <= pd <= 109:
         return "IPERTENSIONE LIEVE"
     else:
         return "CONDIZIONE NON CLASSIFICATA"
