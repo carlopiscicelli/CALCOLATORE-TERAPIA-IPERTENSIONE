@@ -83,7 +83,8 @@ if st.button("Calcola Terapia e Classificazione Ipertensione"):
 
     st.subheader("📖 Riferimento Bibliografico")
     st.write(
-        "Eva Mulder et Al. Study protocol for the randomized controlled EVA (early vascular adjustments) trial: tailored treatment of mild hypertension in pregnancy to prevent severe hypertension and preeclampsia. **BMC Pregnancy Childbirth. 2020 Dec 12;20(1):775**
-    """)
-"
+  """Eva Mulder et Al. Study protocol for the randomized controlled EVA (early vascular adjustments) trial:
+tailored treatment of mild hypertension in pregnancy to prevent severe hypertension and preeclampsia.
+**BMC Pregnancy Childbirth. 2020 Dec 12;20(1):775**"""
+
     )
