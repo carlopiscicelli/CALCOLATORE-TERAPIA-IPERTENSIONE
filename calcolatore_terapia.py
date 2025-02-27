@@ -2,94 +2,89 @@ import streamlit as st
 
 def classifica_ipertensione(ps, pd):
     if ps < 140 and pd < 90:
-        return "VALORI NON INDICATIVI DI IPERTENSIONE"
+        return "VALORI NON INDICATIVI DI IPERTENSIONE", "green"
     elif ps > 159 or pd > 109:
-        return "IPERTENSIONE GRAVE"
-    elif 140 <= ps <= 159 and 80 <= pd <= 109:
-        return "IPERTENSIONE LIEVE"
+        return "IPERTENSIONE GRAVE", "red"
+    elif (140 <= ps <= 159) or (90 <= pd <= 109):
+        return "IPERTENSIONE LIEVE", "orange"
     else:
-        return "CONDIZIONE NON CLASSIFICATA"
-
-def classifica_pam(pam):
-    if pam < 97:
-        return "Normale"
-    else:
-        return "Superiore ai limiti"
-
-def classifica_dinamica(pam_fc_ratio):
-    if pam_fc_ratio <= 1.1:
-        return "Ipertensione iperdinamica con basse resistenze vascolari"
-    elif 1.1 < pam_fc_ratio < 1.4:
-        return "Ipertensione normodinamica con resistenze vascolari normali"
-    else:
-        return "Ipertensione ipodinamica con alte resistenze vascolari"
+        return "CONDIZIONE NON CLASSIFICATA", "gray"
 
 def spiegazione_clinica(pam_fc_ratio):
     if pam_fc_ratio <= 1.1:
         return "I beta-bloccanti sono i farmaci adatti a questo profilo."
     elif 1.1 < pam_fc_ratio < 1.4:
-        return "Per queste pazienti sono preferiti gli agonisti del recettore alfa ad azione centrale, come la metildopa che modifica l'attività simpatica centrale."
+        return "Per questi pazienti sono preferiti gli agonisti del recettore alfa ad azione centrale, come la metildopa che modifica l'attività simpatica centrale."
     else:
         return "Queste donne possono trarre beneficio dalla vasodilatazione indotta dai calcio-antagonisti."
 
 def calcola_terapia(ps, pd, fc, classificazione):
-    if classificazione == "VALORI NON INDICATIVI DI IPERTENSIONE":
-        return "Nessuna terapia", 0, 0
-    
     pam = (ps + (2 * pd)) / 3
     pam_fc_ratio = pam / fc
-    
+
+    if classificazione == "VALORI NON INDICATIVI DI IPERTENSIONE":
+        return "Nessuna terapia", pam, pam_fc_ratio, "green", False
+
     if pam_fc_ratio <= 1.1:
         terapia = "Trandate 100 mg, una compressa ogni 8 ore"
     elif 1.1 < pam_fc_ratio < 1.4:
         terapia = "Aldomet 250 mg, una compressa ogni 8 ore"
     else:
         terapia = "Adalat crono 30 mg, una compressa al giorno"
-    
-    return terapia, pam, pam_fc_ratio
 
-st.title("📌 Algoritmo per la Scelta della Terapia nella Gestante Ipertesa")
+    return terapia, pam, pam_fc_ratio, "blue", True
 
-ps = st.number_input("Pressione Sistolica (mmHg)", min_value=50, max_value=250, value=120)
-pd = st.number_input("Pressione Diastolica (mmHg)", min_value=30, max_value=150, value=80)
+# -------------------- INTERFACCIA GRAFICA --------------------
+st.markdown("## 🔎 **Algoritmo per la Scelta della Terapia nella Gestante Ipertesa**")
+
+ps = st.number_input("Pressione sistolica (mmHg)", min_value=50, max_value=250, value=120)
+pd = st.number_input("Pressione diastolica (mmHg)", min_value=30, max_value=150, value=80)
 fc = st.number_input("Frequenza Cardiaca (bpm)", min_value=40, max_value=180, value=70)
 
-if st.button("🔍 Calcola Terapia e Classificazione Ipertensione"):
-    classificazione = classifica_ipertensione(ps, pd)
-    terapia, pam, pam_fc_ratio = calcola_terapia(ps, pd, fc, classificazione)
-    pam_classificazione = classifica_pam(pam) if pam else "-"
-    dinamica_classificazione = classifica_dinamica(pam_fc_ratio) if pam_fc_ratio else "-"
-    spiegazione = spiegazione_clinica(pam_fc_ratio) if pam_fc_ratio else "-"
-    
-    st.markdown(f"""
-    ## 📋 Risultati dell'Analisi
-    
-    **Pressione Sistolica:** `{ps}` mmHg  
-    **Pressione Diastolica:** `{pd}` mmHg  
-    **Frequenza Cardiaca:** `{fc}` bpm  
-    
-    **Pressione Arteriosa:** `{classificazione}`  
-    **Pressione Arteriosa Media (PAM):** `{pam:.1f}` _{pam_classificazione}_  
-    **PAM/FC Ratio:** `{pam_fc_ratio:.1f}` _{dinamica_classificazione}_  
-    
-    ## 💊 Terapia Consigliata
-    **{terapia}**
-    
-    ## 🔬 Interpretazione
-    _{spiegazione}_
-    
-    ## 🎯 PA Target e Adattamento della Terapia
-    Il trattamento verrà aumentato se la **pressione arteriosa target di <130/80 mmHg (MAP 97 mmHg)** non viene raggiunta.  
-    **Dosaggi massimi:**  
-    - **800 mg** tre volte al giorno per **labetalolo**  
-    - **30 mg** tre volte al giorno per **nifedipina** a lento rilascio  
-    - **1000 mg** tre volte al giorno per **metildopa**  
-    
-    ## ⚠️ Attenzione
-    In presenza di **ipertensione grave**, proteinuria e/o sintomi neurologici, è necessaria la somministrazione di **MgSO4** per la prevenzione dell'eclampsia.
-    
-    ---
-    
-    **📖 Riferimento Bibliografico**
-    Eva Mulder et Al. Study protocol for the randomized controlled EVA (early vascular adjustments) trial: tailored treatment of mild hypertension in pregnancy to prevent severe hypertension and preeclampsia. **BMC Pregnancy Childbirth. 2020 Dec 12;20(1):775**
-    """)
+st.markdown("<br>", unsafe_allow_html=True)
+
+st.markdown(
+    '<style>div.stButton > button:first-child {'
+    'border: 3px solid red; border-radius: 10px; font-size: 16px; font-weight: bold;'
+    'background-color: white; color: red; padding: 10px 20px; width: 100%;}</style>',
+    unsafe_allow_html=True
+)
+
+if st.button("Calcola Terapia e Classificazione Ipertensione"):
+    classificazione, colore_classificazione = classifica_ipertensione(ps, pd)
+    terapia, pam, pam_fc_ratio, colore_terapia, mostra_spiegazione = calcola_terapia(ps, pd, fc, classificazione)
+
+    # **Risultato con colori corretti**
+    st.markdown(
+        f'<div style="background-color:{colore_classificazione}; padding:10px; border-radius:10px; text-align:center; font-weight:bold; color:white;">'
+        f'{classificazione.upper()}</div>',
+        unsafe_allow_html=True,
+    )
+
+    # **Terapia consigliata**
+    st.subheader("🩺 Terapia consigliata")
+    st.markdown(f'<div style="background-color:#E8F5E9; padding:10px; border-radius:10px;">'
+                f'🫀 <b>Farmaco consigliato:</b> {terapia}</div>', unsafe_allow_html=True)
+
+    # **Mostra sempre PAM e PAM/FC**
+    st.markdown(f"📊 **PAM (Pressione Arteriosa Media):** <span style='color:green; font-weight:bold;'>{pam:.2f}</span>", unsafe_allow_html=True)
+    st.markdown(f"📈 **Rapporto PAM/FC:** <span style='color:green; font-weight:bold;'>{pam_fc_ratio:.2f}</span>", unsafe_allow_html=True)
+
+    # **Mostra la spiegazione clinica solo se necessario**
+    if mostra_spiegazione:
+        st.info(spiegazione_clinica(pam_fc_ratio))
+
+    # **Sezioni finali**
+    st.subheader("🎯 Obiettivo")
+    st.write("L'obiettivo è mantenere la pressione arteriosa sotto i 140/90 mmHg per prevenire complicanze materno-fetali.")
+
+    st.subheader("⚠️ Attenzione")
+    st.write("In presenza di **ipertensione grave**, proteinuria e/o sintomi neurologici, è necessaria la somministrazione di **MgSO4** per la prevenzione dell'eclampsia.")
+
+    st.subheader("📖 Riferimento Bibliografico")
+    st.write(
+  """Eva Mulder et Al. Study protocol for the randomized controlled EVA (early vascular adjustments) trial:
+tailored treatment of mild hypertension in pregnancy to prevent severe hypertension and preeclampsia.
+**BMC Pregnancy Childbirth. 2020 Dec 12;20(1):775**"""
+
+    )
